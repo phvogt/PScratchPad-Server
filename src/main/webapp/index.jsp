@@ -1,6 +1,6 @@
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.ResourceBundle"%>
-<%@page import="org.apache.commons.lang.StringEscapeUtils"%>
+<%@page import="org.apache.commons.lang3.StringEscapeUtils"%>
 <%@page import="com.github.phvogt.pscratchpad.server.config.IConstants"%>
 <%@page import="com.github.phvogt.pscratchpad.server.config.IConstantsRequest"%>
 <%
@@ -41,7 +41,7 @@
         <input type="submit" value="<%=r.getString("btn.reload")%>" />
       </form>
     </div>
-    <div id="<%=IConstantsRequest.HTML_ID_DIV_CHANGED%>" class="changedDiv"><%=StringEscapeUtils.escapeHtml(r.getString(changed))%></div>
+    <div id="<%=IConstantsRequest.HTML_ID_DIV_CHANGED%>" class="changedDiv"><%=StringEscapeUtils.escapeHtml4(r.getString(changed))%></div>
     <div class="editform">
       <form id="editform" method="post" action="../<%=IConstants.URL_SAVE%>/<%=name%>">
         <div class="save">
@@ -53,7 +53,7 @@
         </div>
         <div class="edittextarea">
           <textarea id="edittextarea" class="editor" wrap="off" rows="28" cols="35"
-            name="<%=IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD%>"><%=StringEscapeUtils.escapeHtml(daten)%></textarea>
+            name="<%=IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD%>"><%=StringEscapeUtils.escapeHtml4(daten)%></textarea>
         </div>
       </form>
     </div>
