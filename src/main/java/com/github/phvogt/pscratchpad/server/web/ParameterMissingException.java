@@ -1,5 +1,7 @@
 // (c) 2013 by Philipp Vogt
-package com.github.phvogt.pscratchpad.server.exceptions;
+package com.github.phvogt.pscratchpad.server.web;
+
+import com.github.phvogt.pscratchpad.server.exceptions.BaseRuntimeException;
 
 /**
  * Exception if a parameter was missing.

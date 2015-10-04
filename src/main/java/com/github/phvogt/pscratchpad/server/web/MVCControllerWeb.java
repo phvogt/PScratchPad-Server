@@ -1,5 +1,5 @@
 // (c) 2015 by Philipp Vogt
-package com.github.phvogt.pscratchpad.server.controller;
+package com.github.phvogt.pscratchpad.server.web;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -16,10 +16,8 @@ import org.springframework.web.servlet.View;
 import org.springframework.web.servlet.view.RedirectView;
 
 import com.github.phvogt.pscratchpad.server.config.IConstants;
-import com.github.phvogt.pscratchpad.server.config.IConstantsRequest;
 import com.github.phvogt.pscratchpad.server.dao.ScratchPadService;
 import com.github.phvogt.pscratchpad.server.dao.entities.ScratchPad;
-import com.github.phvogt.pscratchpad.server.exceptions.ParameterMissingException;
 import com.github.phvogt.pscratchpad.server.utils.RequestHelper;
 
 @Controller
@@ -38,7 +36,7 @@ public class MVCControllerWeb {
      */
     @RequestMapping(value = "/")
     private View doIndex() {
-        return new RedirectView("/" + IConstants.URL_LOAD + "/" + IConstants.DEFAULT_NAME);
+        return new RedirectView("/" + IConstantsRequest.URL_LOAD + "/" + IConstants.DEFAULT_NAME);
     }
 
     /**
@@ -47,7 +45,7 @@ public class MVCControllerWeb {
      * @param name name of the scratchpad
      * @return dispatch target
      */
-    @RequestMapping(value = "/" + IConstants.URL_LOAD + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
+    @RequestMapping(value = "/" + IConstantsRequest.URL_LOAD + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
     private String doLoad(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name, final Model model) {
 
         final String methodname = "doLoad(): ";
@@ -65,7 +63,7 @@ public class MVCControllerWeb {
 
         logger.log(Level.INFO, methodname + "name = " + name + " saveTime = " + saveTime + " daten = " + daten);
 
-        return IConstants.MVC_TARGET_INDEX;
+        return IConstantsRequest.MVC_TARGET_INDEX;
     }
 
     /**
@@ -75,7 +73,7 @@ public class MVCControllerWeb {
      * @param model model
      * @return dispatch target
      */
-    @RequestMapping(value = "/" + IConstants.URL_SAVE + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
+    @RequestMapping(value = "/" + IConstantsRequest.URL_SAVE + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
     private String doSave(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name,
             @RequestParam(value = IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD, required = false) final String data,
             final Model model) {
@@ -83,25 +81,23 @@ public class MVCControllerWeb {
         final String methodname = "doSave(): ";
         logger.log(Level.INFO, methodname + "name = " + name + " data = " + data);
 
-        String result = IConstants.MVC_TARGET_ERROR;
+        if (data == null) {
+            throw new ParameterMissingException(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD);
+        }
+
+        String result = IConstantsRequest.MVC_TARGET_ERROR;
 
         final String nameToUse = RequestHelper.getName(name);
         model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
 
-        if (data != null) {
+        final ScratchPad scratchpad = service.saveScratchPad(nameToUse, data);
 
-            final ScratchPad scratchpad = service.saveScratchPad(nameToUse, data);
+        final long saveTime = scratchpad.getLastChange().getTime();
+        model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT, data);
+        model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP, saveTime);
+        model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE, "changed.saved");
 
-            final long saveTime = scratchpad.getLastChange().getTime();
-            model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT, data);
-            model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP, saveTime);
-            model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE, "changed.saved");
-
-            result = IConstants.MVC_TARGET_INDEX;
-
-        } else {
-            throw new ParameterMissingException(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD);
-        }
+        result = IConstantsRequest.MVC_TARGET_INDEX;
 
         return result;
     }
@@ -113,7 +109,7 @@ public class MVCControllerWeb {
      * @param response response
      * @return dispatch target
      */
-    @RequestMapping(value = "/" + IConstants.URL_DOWNLOAD + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
+    @RequestMapping(value = "/" + IConstantsRequest.URL_DOWNLOAD + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
     public String doDownload(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name, final Model model,
             final HttpServletResponse response) {
 
@@ -123,7 +119,7 @@ public class MVCControllerWeb {
         final String nameToUse = RequestHelper.getName(name);
         model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
 
-        final String jsp = IConstants.MVC_TARGET_DOWNLOAD;
+        final String jsp = IConstantsRequest.MVC_TARGET_DOWNLOAD;
 
         final ScratchPad scratchpad = service.getScratchPad(nameToUse);
         final String filename = scratchpad.getName();

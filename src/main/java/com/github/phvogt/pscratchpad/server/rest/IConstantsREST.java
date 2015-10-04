@@ -1,10 +1,13 @@
 // (c) 2013 by Philipp Vogt
-package com.github.phvogt.pscratchpad.server.config;
+package com.github.phvogt.pscratchpad.server.rest;
 
 /**
  * Constants for REST api.
  */
 public interface IConstantsREST {
+
+    /** URL for REST. */
+    String URL_REST = "rest";
 
     /** Status ok. */
     String STATUS_OK = "OK";

@@ -2,7 +2,7 @@
 <%@page import="java.util.ResourceBundle"%>
 <%@page import="org.apache.commons.lang3.StringEscapeUtils"%>
 <%@page import="com.github.phvogt.pscratchpad.server.config.IConstants"%>
-<%@page import="com.github.phvogt.pscratchpad.server.config.IConstantsRequest"%>
+<%@page import="com.github.phvogt.pscratchpad.server.web.IConstantsRequest"%>
 <%
     final ResourceBundle r = ResourceBundle.getBundle(IConstants.MESSAGES_RESSOURCE);
 
@@ -37,13 +37,13 @@
 <body onload="javascript:doInit()">
   <div class="main">
     <div class="load">
-      <form method="get" action="../<%=IConstants.URL_LOAD%>/<%=name%>">
+      <form method="get" action="../<%=IConstantsRequest.URL_LOAD%>/<%=name%>">
         <input type="submit" value="<%=r.getString("btn.reload")%>" />
       </form>
     </div>
     <div id="<%=IConstantsRequest.HTML_ID_DIV_CHANGED%>" class="changedDiv"><%=StringEscapeUtils.escapeHtml4(r.getString(changed))%></div>
     <div class="editform">
-      <form id="editform" method="post" action="../<%=IConstants.URL_SAVE%>/<%=name%>">
+      <form id="editform" method="post" action="../<%=IConstantsRequest.URL_SAVE%>/<%=name%>">
         <div class="save">
           <input type="submit" value="<%=r.getString("btn.save")%>" />
         </div>
@@ -59,7 +59,7 @@
     </div>
   </div>
   <div class="download">
-    <form method="get" action="../<%=IConstants.URL_DOWNLOAD%>/<%=name%>">
+    <form method="get" action="../<%=IConstantsRequest.URL_DOWNLOAD%>/<%=name%>">
       <input type="submit" value="<%=r.getString("btn.download")%>" />
     </form>
   </div>

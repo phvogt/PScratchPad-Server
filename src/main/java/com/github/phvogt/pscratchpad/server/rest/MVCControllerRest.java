@@ -1,5 +1,5 @@
 // (c) 2015 by Philipp Vogt
-package com.github.phvogt.pscratchpad.server.controller;
+package com.github.phvogt.pscratchpad.server.rest;
 
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -12,12 +12,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.phvogt.pscratchpad.server.config.IConstants;
-import com.github.phvogt.pscratchpad.server.config.IConstantsREST;
 import com.github.phvogt.pscratchpad.server.dao.ScratchPadService;
 import com.github.phvogt.pscratchpad.server.dao.entities.ScratchPad;
-import com.github.phvogt.pscratchpad.server.rest.ScratchPadRestBaseResponse;
-import com.github.phvogt.pscratchpad.server.rest.ScratchPadRestRequest;
-import com.github.phvogt.pscratchpad.server.rest.ScratchPadRestResponse;
 import com.github.phvogt.pscratchpad.server.utils.RequestHelper;
 
 /**
@@ -38,7 +34,7 @@ public class MVCControllerRest {
      * @param name name of the scratchpad
      * @return response
      */
-    @RequestMapping(value = "/" + IConstants.URL_REST + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}", method = RequestMethod.GET)
+    @RequestMapping(value = "/" + IConstantsREST.URL_REST + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}", method = RequestMethod.GET)
     public ScratchPadRestResponse getData(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name) {
 
         final String methodname = "getData(): ";
@@ -65,7 +61,7 @@ public class MVCControllerRest {
      * @param data data to save
      * @return response
      */
-    @RequestMapping(value = "/" + IConstants.URL_REST + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}", method = RequestMethod.POST)
+    @RequestMapping(value = "/" + IConstantsREST.URL_REST + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}", method = RequestMethod.POST)
     public ScratchPadRestBaseResponse saveData(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name,
             @RequestBody final ScratchPadRestRequest data) {
 

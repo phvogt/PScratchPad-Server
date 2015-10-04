@@ -2,5 +2,5 @@
 /**
  * contains the controllers.
  */
-package com.github.phvogt.pscratchpad.server.controller;
+package com.github.phvogt.pscratchpad.server.web;
 
