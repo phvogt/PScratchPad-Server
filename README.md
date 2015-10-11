@@ -1,6 +1,7 @@
 # PScratchPad Server
 
 [![Build Status](https://travis-ci.org/phvogt/PScratchPad-Server.svg?branch=master)](https://travis-ci.org/phvogt/PScratchPad-Server)
+[![Coverage Status](https://coveralls.io/repos/phvogt/PScratchPad-Server/badge.svg?branch=master&service=github)](https://coveralls.io/github/phvogt/PScratchPad-Server?branch=master)
 
 This project implements a scratchpad that can be used to store data.
 
