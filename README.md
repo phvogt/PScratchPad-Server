@@ -1,5 +1,7 @@
 # PScratchPad Server
 
+[![Build Status](https://travis-ci.org/phvogt/PScratchPad-Server.svg?branch=master)](https://travis-ci.org/phvogt/PScratchPad-Server)
+
 This project implements a scratchpad that can be used to store data.
 
 It is based on [Google App Engine](https://cloud.google.com/appengine/docs).
