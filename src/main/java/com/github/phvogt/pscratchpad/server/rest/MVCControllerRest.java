@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.github.phvogt.pscratchpad.server.config.IConstants;
@@ -34,7 +35,9 @@ public class MVCControllerRest {
      * @param name name of the scratchpad
      * @return response
      */
-    @RequestMapping(value = "/" + IConstantsREST.URL_REST + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}", method = RequestMethod.GET)
+    @RequestMapping(value = "/" + IConstantsREST.URL_REST + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME
+            + "}", method = RequestMethod.GET)
+    @ResponseBody
     public ScratchPadRestResponse getData(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name) {
 
         final String methodname = "getData(): ";
@@ -61,7 +64,9 @@ public class MVCControllerRest {
      * @param data data to save
      * @return response
      */
-    @RequestMapping(value = "/" + IConstantsREST.URL_REST + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}", method = RequestMethod.POST)
+    @RequestMapping(value = "/" + IConstantsREST.URL_REST + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME
+            + "}", method = RequestMethod.POST)
+    @ResponseBody
     public ScratchPadRestBaseResponse saveData(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name,
             @RequestBody final ScratchPadRestRequest data) {
 
