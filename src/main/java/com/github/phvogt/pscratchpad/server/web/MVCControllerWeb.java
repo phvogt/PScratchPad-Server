@@ -35,7 +35,7 @@ public class MVCControllerWeb {
      * @return new View
      */
     @RequestMapping(value = "/")
-    private View doIndex() {
+    public View doIndex() {
         return new RedirectView("/" + IConstantsRequest.URL_LOAD + "/" + IConstants.DEFAULT_NAME);
     }
 
@@ -46,7 +46,7 @@ public class MVCControllerWeb {
      * @return dispatch target
      */
     @RequestMapping(value = "/" + IConstantsRequest.URL_LOAD + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
-    private String doLoad(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name, final Model model) {
+    public String doLoad(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name, final Model model) {
 
         final String methodname = "doLoad(): ";
         logger.log(Level.INFO, methodname + "name = " + name);
@@ -74,7 +74,7 @@ public class MVCControllerWeb {
      * @return dispatch target
      */
     @RequestMapping(value = "/" + IConstantsRequest.URL_SAVE + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
-    private String doSave(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name,
+    public String doSave(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name,
             @RequestParam(value = IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD, required = false) final String data,
             final Model model) {
 
@@ -119,8 +119,6 @@ public class MVCControllerWeb {
         final String nameToUse = RequestHelper.getName(name);
         model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
 
-        final String jsp = IConstantsRequest.MVC_TARGET_DOWNLOAD;
-
         final ScratchPad scratchpad = service.getScratchPad(nameToUse);
         final String filename = scratchpad.getName();
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".txt\"");
@@ -130,8 +128,8 @@ public class MVCControllerWeb {
 
         logger.log(Level.INFO, methodname + "nameToUse = " + nameToUse + " text = " + text);
 
-        return jsp;
-
+        final String result = IConstantsRequest.MVC_TARGET_DOWNLOAD;
+        return result;
     }
 
 }
