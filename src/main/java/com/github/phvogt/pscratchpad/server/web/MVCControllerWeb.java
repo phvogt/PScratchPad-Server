@@ -17,7 +17,6 @@ import org.springframework.web.servlet.view.RedirectView;
 import com.github.phvogt.pscratchpad.server.config.IConstants;
 import com.github.phvogt.pscratchpad.server.dao.ScratchPadService;
 import com.github.phvogt.pscratchpad.server.dao.entities.ScratchPad;
-import com.github.phvogt.pscratchpad.server.utils.RequestHelper;
 
 @Controller
 public class MVCControllerWeb {
@@ -50,10 +49,9 @@ public class MVCControllerWeb {
         final String methodname = "doLoad(): ";
         logger.log(Level.INFO, methodname + "name = " + name);
 
-        final String nameToUse = RequestHelper.getName(name);
         model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
 
-        final ScratchPad scratchpad = service.getScratchPad(nameToUse);
+        final ScratchPad scratchpad = service.getScratchPad(name);
         final String daten = scratchpad.getData();
         final Long saveTime = scratchpad.getLastChange().getTime();
 
@@ -86,10 +84,9 @@ public class MVCControllerWeb {
 
         String result = IConstantsRequest.MVC_TARGET_ERROR;
 
-        final String nameToUse = RequestHelper.getName(name);
         model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
 
-        final ScratchPad scratchpad = service.saveScratchPad(nameToUse, data);
+        final ScratchPad scratchpad = service.saveScratchPad(name, data);
 
         final long saveTime = scratchpad.getLastChange().getTime();
         model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT, data);
@@ -115,17 +112,16 @@ public class MVCControllerWeb {
         final String methodname = "doDownload(): ";
         logger.log(Level.INFO, methodname + "name = " + name);
 
-        final String nameToUse = RequestHelper.getName(name);
         model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
 
-        final ScratchPad scratchpad = service.getScratchPad(nameToUse);
+        final ScratchPad scratchpad = service.getScratchPad(name);
         final String filename = scratchpad.getName();
         response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".txt\"");
 
         final String text = scratchpad.getData();
         model.addAttribute(IConstantsRequest.REQUEST_ATTR_TEXT, text);
 
-        logger.log(Level.INFO, methodname + "nameToUse = " + nameToUse + " text = " + text);
+        logger.log(Level.INFO, methodname + "name = " + name + " text = " + text);
 
         final String result = IConstantsRequest.MVC_TARGET_DOWNLOAD;
         return result;

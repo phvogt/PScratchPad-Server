@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.github.phvogt.pscratchpad.server.config.IConstants;
 import com.github.phvogt.pscratchpad.server.dao.ScratchPadService;
 import com.github.phvogt.pscratchpad.server.dao.entities.ScratchPad;
-import com.github.phvogt.pscratchpad.server.utils.RequestHelper;
 
 /**
  * Controller for REST calls.
@@ -42,13 +41,11 @@ public class MVCControllerRest {
         final String methodname = "getData(): ";
         logger.log(Level.INFO, methodname + "name = " + name);
 
-        final String nameToUse = RequestHelper.getName(name);
-
         final ScratchPadRestResponse result = new ScratchPadRestResponse();
         result.setStatus(IConstantsREST.STATUS_OK);
         result.setMessage(IConstantsREST.MESSAGE_OK);
 
-        final ScratchPad scratchpad = service.getScratchPad(nameToUse);
+        final ScratchPad scratchpad = service.getScratchPad(name);
         final String data = scratchpad.getData();
         result.setData(data);
 
@@ -72,11 +69,9 @@ public class MVCControllerRest {
         final String methodname = "saveData(): ";
         logger.log(Level.INFO, methodname + "name = " + name + " data = " + data);
 
-        final String nameToUse = RequestHelper.getName(name);
-
         final String text = data.getData();
 
-        final ScratchPad scratchpad = service.saveScratchPad(nameToUse, text);
+        final ScratchPad scratchpad = service.saveScratchPad(name, text);
         logger.log(Level.INFO, methodname + "scratchpad = " + scratchpad);
 
         final ScratchPadRestBaseResponse result = new ScratchPadRestBaseResponse();

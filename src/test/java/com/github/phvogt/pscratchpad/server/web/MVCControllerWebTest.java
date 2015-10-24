@@ -60,11 +60,11 @@ public class MVCControllerWebTest {
     @BeforeClass
     public static void setUpClass() {
 
-        // setup data nucleus to enhance DAO classes
-        final DataNucleusEnhancer enhancer = new DataNucleusEnhancer("JPA", null);
-        enhancer.setVerbose(true);
-        enhancer.addPersistenceUnit("pscratchpad");
-        enhancer.enhance();
+	// setup data nucleus to enhance DAO classes
+	final DataNucleusEnhancer enhancer = new DataNucleusEnhancer("JPA", null);
+	enhancer.setVerbose(true);
+	enhancer.addPersistenceUnit("pscratchpad");
+	enhancer.enhance();
     }
 
     /**
@@ -73,13 +73,13 @@ public class MVCControllerWebTest {
     @Before
     public void setUp() {
 
-        // We have to reset our mock between tests because the mock objects
-        // are managed by the Spring container. If we would not reset them,
-        // stubbing and verified behavior would "leak" from one test to another.
-        Mockito.reset(service);
+	// We have to reset our mock between tests because the mock objects
+	// are managed by the Spring container. If we would not reset them,
+	// stubbing and verified behavior would "leak" from one test to another.
+	Mockito.reset(service);
 
-        mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
-        gaeHelper.setUp();
+	mockMvc = MockMvcBuilders.webAppContextSetup(webApplicationContext).build();
+	gaeHelper.setUp();
 
     }
 
@@ -88,52 +88,58 @@ public class MVCControllerWebTest {
      */
     @After
     public void tearDown() {
-        gaeHelper.tearDown();
+	gaeHelper.tearDown();
     }
 
     /**
      * Tests
      * {@link com.github.phvogt.pscratchpad.server.web.MVCControllerWeb#doIndex()}
      * .
-     * @throws Exception if an assertion fails
+     * 
+     * @throws Exception
+     *             if an assertion fails
      */
     @Test
     public void testDoIndex() throws Exception {
 
-        logger.info("start");
+	logger.info("start");
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/")).andDo(MockMvcResultHandlers.print())
-        .andExpect(MockMvcResultMatchers.status().isFound())
-        .andExpect(MockMvcResultMatchers.redirectedUrl("/load/default"));
+	mockMvc.perform(MockMvcRequestBuilders.get("/")).andDo(MockMvcResultHandlers.print())
+	.andExpect(MockMvcResultMatchers.status().isFound())
+	.andExpect(MockMvcResultMatchers.redirectedUrl("/load/default"));
 
-        logger.info("end");
+	logger.info("end");
     }
 
     /**
      * Tests
      * {@link com.github.phvogt.pscratchpad.server.web.MVCControllerWeb#doLoad(String, org.springframework.ui.Model)}
      * .
-     * @throws Exception if an assertion fails
+     * 
+     * @throws Exception
+     *             if an assertion fails
      */
     @Test
     public void testDoLoad() throws Exception {
 
-        final String testName = "default";
-        final String testData = "testData";
-        final Date testTime = new Date();
+	final String testName = "default";
+	final String testData = "testData";
+	final Date testTime = new Date();
 
-        final ScratchPad returnData = TestUtils.createTestData(testName, testData, testTime);
+	final ScratchPad returnData = TestUtils.createTestData(testName, testData, testTime);
 
-        Mockito.when(service.getScratchPad(testName)).thenReturn(returnData);
+	Mockito.when(service.getScratchPad(testName)).thenReturn(returnData);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + IConstantsRequest.URL_LOAD + "/" + testName))
-        .andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.view().name("index")).andExpect(MockMvcResultMatchers.forwardedUrl("index"))
-        .andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME, Matchers.is(testName)))
-        .andExpect(
-                MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT, Matchers.is(testData)))
-        .andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP,
-                Matchers.is(testTime.getTime())));
+	mockMvc.perform(MockMvcRequestBuilders.get("/" + IConstantsRequest.URL_LOAD + "/" + testName))
+	.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
+	.andExpect(MockMvcResultMatchers.view().name("index"))
+	.andExpect(MockMvcResultMatchers.forwardedUrl("index"))
+	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME,
+		Matchers.is(testName)))
+	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT,
+		Matchers.is(testData)))
+	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP,
+		Matchers.is(testTime.getTime())));
 
     }
 
@@ -141,30 +147,58 @@ public class MVCControllerWebTest {
      * Tests
      * {@link com.github.phvogt.pscratchpad.server.web.MVCControllerWeb#doSave(String, String, org.springframework.ui.Model)}
      * .
-     * @throws Exception if an assertion fails
+     * 
+     * @throws Exception
+     *             if an assertion fails
      */
     @Test
     public void testDoSave() throws Exception {
 
-        final String testName = "default";
-        final String testData = "testData";
-        final Date testTime = new Date();
+	final String testName = "default";
+	final String testData = "testData";
+	final Date testTime = new Date();
 
-        final ScratchPad returnData = TestUtils.createTestData(testName, testData, testTime);
+	final ScratchPad returnData = TestUtils.createTestData(testName, testData, testTime);
 
-        Mockito.when(service.saveScratchPad(testName, testData)).thenReturn(returnData);
+	Mockito.when(service.saveScratchPad(testName, testData)).thenReturn(returnData);
 
-        mockMvc.perform(MockMvcRequestBuilders.post("/" + IConstantsRequest.URL_SAVE + "/" + testName)
-                .param(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD, testData)).andDo(MockMvcResultHandlers.print())
-        .andExpect(MockMvcResultMatchers.status().isOk()).andExpect(MockMvcResultMatchers.view().name("index"))
-        .andExpect(MockMvcResultMatchers.forwardedUrl("index"))
-        .andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME, Matchers.is(testName)))
-        .andExpect(
-                MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT, Matchers.is(testData)))
-        .andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP,
-                Matchers.is(testTime.getTime())))
-        .andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE,
-                Matchers.is("changed.saved")));
+	mockMvc.perform(MockMvcRequestBuilders.post("/" + IConstantsRequest.URL_SAVE + "/" + testName)
+		.param(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD, testData))
+	.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
+	.andExpect(MockMvcResultMatchers.view().name("index"))
+	.andExpect(MockMvcResultMatchers.forwardedUrl("index"))
+	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME,
+		Matchers.is(testName)))
+	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT,
+		Matchers.is(testData)))
+	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP,
+		Matchers.is(testTime.getTime())))
+	.andExpect(MockMvcResultMatchers.model().attribute(
+		IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE, Matchers.is("changed.saved")));
+
+    }
+
+    /**
+     * Tests
+     * {@link com.github.phvogt.pscratchpad.server.web.MVCControllerWeb#doSave(String, String, org.springframework.ui.Model)}
+     * .
+     * 
+     * @throws Exception
+     *             if an assertion fails
+     */
+    @Test
+    public void testDoSaveNoParameter() throws Exception {
+
+	final String testName = "default";
+	final String testData = "testData";
+	final Date testTime = new Date();
+
+	final ScratchPad returnData = TestUtils.createTestData(testName, testData, testTime);
+
+	Mockito.when(service.saveScratchPad(testName, testData)).thenReturn(returnData);
+
+	mockMvc.perform(MockMvcRequestBuilders.post("/" + IConstantsRequest.URL_SAVE + "/" + testName))
+	.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest());
 
     }
 
@@ -172,26 +206,31 @@ public class MVCControllerWebTest {
      * Tests
      * {@link com.github.phvogt.pscratchpad.server.web.MVCControllerWeb#doDownload(String, org.springframework.ui.Model, javax.servlet.http.HttpServletResponse)}
      * .
-     * @throws Exception if an assertion fails
+     * 
+     * @throws Exception
+     *             if an assertion fails
      */
     @Test
     public void testDoDownload() throws Exception {
 
-        final String testName = "default";
-        final String testData = "testData";
-        final Date testTime = new Date();
+	final String testName = "default";
+	final String testData = "testData";
+	final Date testTime = new Date();
 
-        final ScratchPad returnData = TestUtils.createTestData(testName, testData, testTime);
+	final ScratchPad returnData = TestUtils.createTestData(testName, testData, testTime);
 
-        Mockito.when(service.getScratchPad(testName)).thenReturn(returnData);
+	Mockito.when(service.getScratchPad(testName)).thenReturn(returnData);
 
-        mockMvc.perform(MockMvcRequestBuilders.get("/" + IConstantsRequest.URL_DOWNLOAD + "/" + testName))
-        .andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
-        .andExpect(MockMvcResultMatchers.view().name("download")).andExpect(MockMvcResultMatchers.forwardedUrl("download"))
-        .andExpect(MockMvcResultMatchers.header().string("Content-Disposition",
-                "attachment; filename=\"" + testName + ".txt\""))
-        .andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME, Matchers.is(testName)))
-        .andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_TEXT, Matchers.is(testData)));
+	mockMvc.perform(MockMvcRequestBuilders.get("/" + IConstantsRequest.URL_DOWNLOAD + "/" + testName))
+	.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
+	.andExpect(MockMvcResultMatchers.view().name("download"))
+	.andExpect(MockMvcResultMatchers.forwardedUrl("download"))
+	.andExpect(MockMvcResultMatchers.header().string("Content-Disposition",
+		"attachment; filename=\"" + testName + ".txt\""))
+	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME,
+		Matchers.is(testName)))
+	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_TEXT,
+		Matchers.is(testData)));
 
     }
 
@@ -202,23 +241,25 @@ public class MVCControllerWebTest {
     @EnableWebMvc
     public static class TestConfiguration {
 
-        /**
-         * Controller to test
-         * @return controller
-         */
-        @Bean
-        public MVCControllerWeb mvcControllerWeb() {
-            return new MVCControllerWeb();
-        }
+	/**
+	 * Controller to test
+	 * 
+	 * @return controller
+	 */
+	@Bean
+	public MVCControllerWeb mvcControllerWeb() {
+	    return new MVCControllerWeb();
+	}
 
-        /**
-         * Retunr mocked service.
-         * @return service
-         */
-        @Bean
-        public ScratchPadService scratchPadService() {
-            return Mockito.mock(ScratchPadService.class);
-        }
+	/**
+	 * Retunr mocked service.
+	 * 
+	 * @return service
+	 */
+	@Bean
+	public ScratchPadService scratchPadService() {
+	    return Mockito.mock(ScratchPadService.class);
+	}
 
     }
 
