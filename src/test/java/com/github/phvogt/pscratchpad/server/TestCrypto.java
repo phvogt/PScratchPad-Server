@@ -1,4 +1,3 @@
-// (c) 2014 by Philipp Vogt
 package com.github.phvogt.pscratchpad.server;
 
 import java.security.spec.KeySpec;

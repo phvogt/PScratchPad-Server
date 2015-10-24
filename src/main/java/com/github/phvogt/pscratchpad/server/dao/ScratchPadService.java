@@ -1,4 +1,3 @@
-// (c) 2015 by Philipp Vogt
 package com.github.phvogt.pscratchpad.server.dao;
 
 import com.github.phvogt.pscratchpad.server.dao.entities.ScratchPad;

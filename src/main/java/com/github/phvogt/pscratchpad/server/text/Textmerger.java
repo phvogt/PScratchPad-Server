@@ -1,4 +1,3 @@
-// (c) 2015 by Philipp Vogt
 package com.github.phvogt.pscratchpad.server.text;
 
 import java.util.Arrays;

@@ -1,4 +1,3 @@
-// (c) 2015 by Philipp Vogt
 /**
  * text utilities.
  */

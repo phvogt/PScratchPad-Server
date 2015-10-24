@@ -1,4 +1,3 @@
-// (c) 2015 by Philipp Vogt
 package com.github.phvogt.pscratchpad.server.web;
 
 import java.util.logging.Level;

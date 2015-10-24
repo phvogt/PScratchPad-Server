@@ -1,4 +1,3 @@
-// (c) 2013 by Philipp Vogt
 package com.github.phvogt.pscratchpad.server.rest;
 
 /**
