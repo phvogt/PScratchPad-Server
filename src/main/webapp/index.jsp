@@ -1,3 +1,4 @@
+<%@page import="java.util.Date"%>
 <%@ page language="java" contentType="text/html; charset=UTF-8" pageEncoding="UTF-8"%>
 <%@page import="java.util.ResourceBundle"%>
 <%@page import="org.apache.commons.lang3.StringEscapeUtils"%>
@@ -8,13 +9,16 @@
 
     String changed = (String) request.getAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE);
     if (changed == null) {
-        changed = "changed.nothing";
+		changed = "changed.nothing";
     }
     final String daten = (String) request.getAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT);
-    final Long saveTime = (Long) request.getAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP);
+    Long saveTime = (Long) request.getAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP);
+    if (saveTime == null) {
+		saveTime = new Date().getTime();
+    }
     String name = (String) request.getAttribute(IConstantsRequest.REQUEST_ATTR_NAME);
     if (name == null) {
-        name = IConstants.DEFAULT_NAME;
+		name = IConstants.DEFAULT_NAME;
     }
 %>
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
@@ -44,6 +48,7 @@
     <div id="<%=IConstantsRequest.HTML_ID_DIV_CHANGED%>" class="changedDiv"><%=StringEscapeUtils.escapeHtml4(r.getString(changed))%></div>
     <div class="editform">
       <form id="editform" method="post" action="../<%=IConstantsRequest.URL_SAVE%>/<%=name%>">
+        <input type="hidden" name="<%=IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_LASTCHANGE%>" value="<%=saveTime%>" />
         <div class="save">
           <input type="submit" value="<%=r.getString("btn.save")%>" />
         </div>

@@ -12,8 +12,10 @@ public interface IConstantsRequest {
     /** URL for download. */
     String URL_DOWNLOAD = "download";
 
-    /** request parameter for form field. */
+    /** request parameter for form field of Scratchpad name. */
     String REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD = "scratchpad";
+    /** request parameter for form field of last change. */
+    String REQUEST_PARAM_EDITOR_FORM_LASTCHANGE = "lastchange";
 
     /** request attribute for text. */
     String REQUEST_ATTR_EDITOR_TEXT = "ATTR_TEXT";

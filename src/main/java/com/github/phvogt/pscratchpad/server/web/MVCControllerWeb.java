@@ -1,5 +1,6 @@
 package com.github.phvogt.pscratchpad.server.web;
 
+import java.util.Date;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -16,6 +17,7 @@ import org.springframework.web.servlet.view.RedirectView;
 
 import com.github.phvogt.pscratchpad.server.config.IConstants;
 import com.github.phvogt.pscratchpad.server.dao.ScratchPadService;
+import com.github.phvogt.pscratchpad.server.dao.ScratchpadModifiedException;
 import com.github.phvogt.pscratchpad.server.dao.entities.ScratchPad;
 
 @Controller
@@ -30,101 +32,127 @@ public class MVCControllerWeb {
 
     /**
      * Show start page.
+     * 
      * @return new View
      */
     @RequestMapping(value = "/")
     public View doIndex() {
-        return new RedirectView("/" + IConstantsRequest.URL_LOAD + "/" + IConstants.DEFAULT_NAME);
+	return new RedirectView("/" + IConstantsRequest.URL_LOAD + "/" + IConstants.DEFAULT_NAME);
     }
 
     /**
      * Load text.
-     * @param model model
-     * @param name name of the scratchpad
+     * 
+     * @param model
+     *            model
+     * @param name
+     *            name of the scratchpad
      * @return dispatch target
      */
     @RequestMapping(value = "/" + IConstantsRequest.URL_LOAD + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
     public String doLoad(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name, final Model model) {
 
-        final String methodname = "doLoad(): ";
-        logger.log(Level.INFO, methodname + "name = " + name);
+	final String methodname = "doLoad(): ";
+	logger.log(Level.INFO, methodname + "name = " + name);
 
-        model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
+	model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
 
-        final ScratchPad scratchpad = service.getScratchPad(name);
-        final String daten = scratchpad.getData();
-        final Long saveTime = scratchpad.getLastChange().getTime();
+	final ScratchPad scratchpad = service.getScratchPad(name);
+	final String daten = scratchpad.getData();
+	final Long saveTime = scratchpad.getLastChange().getTime();
 
-        model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT, daten);
-        model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP, saveTime);
+	model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT, daten);
+	model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP, saveTime);
 
-        logger.log(Level.INFO, methodname + "name = " + name + " saveTime = " + saveTime + " daten = " + daten);
+	logger.log(Level.INFO, methodname + "name = " + name + " saveTime = " + saveTime + " daten = " + daten);
 
-        return IConstantsRequest.MVC_TARGET_INDEX;
+	return IConstantsRequest.MVC_TARGET_INDEX;
     }
 
     /**
      * Save text.
-     * @param name name of the scratchpad
-     * @param data data to save
-     * @param model model
+     * 
+     * @param name
+     *            name of the scratchpad
+     * @param lastChange
+     *            last change value
+     * @param data
+     *            data to save
+     * @param model
+     *            model
      * @return dispatch target
      */
     @RequestMapping(value = "/" + IConstantsRequest.URL_SAVE + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
     public String doSave(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name,
-            @RequestParam(value = IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD, required = false) final String data,
-            final Model model) {
+	    @RequestParam(value = IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_LASTCHANGE, required = true) final long lastChange,
+	    @RequestParam(value = IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD, required = false) final String data,
+	    final Model model) {
 
-        final String methodname = "doSave(): ";
-        logger.log(Level.INFO, methodname + "name = " + name + " data = " + data);
+	final String methodname = "doSave(): ";
+	logger.log(Level.INFO, methodname + "name = " + name + " data = " + data);
 
-        if (data == null) {
-            throw new ParameterMissingException(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD);
-        }
+	if (data == null) {
+	    throw new ParameterMissingException(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD);
+	}
 
-        String result = IConstantsRequest.MVC_TARGET_ERROR;
+	String result = IConstantsRequest.MVC_TARGET_ERROR;
 
-        model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
+	model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
 
-        final ScratchPad scratchpad = service.saveScratchPad(name, data);
+	final ScratchPad scratchpad;
+	try {
+	    scratchpad = service.saveScratchPad(name, new Date(lastChange), data);
+	} catch (final ScratchpadModifiedException e) {
+	    // merge data and return it
+	    result = IConstantsRequest.MVC_TARGET_INDEX;
+	    model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT, e.getCurrentData());
+	    model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP,
+		    e.getCurrentLastChange().getTime());
+	    model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE, "changed.merged");
+	    return result;
+	}
 
-        final long saveTime = scratchpad.getLastChange().getTime();
-        model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT, data);
-        model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP, saveTime);
-        model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE, "changed.saved");
+	final long saveTime = scratchpad.getLastChange().getTime();
+	model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT, data);
+	model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP, saveTime);
+	model.addAttribute(IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE, "changed.saved");
 
-        result = IConstantsRequest.MVC_TARGET_INDEX;
+	result = IConstantsRequest.MVC_TARGET_INDEX;
 
-        return result;
+	return result;
     }
 
     /**
      * Download the file.
-     * @param name name of the scratchpad
-     * @param model model
-     * @param response response
+     * 
+     * @param name
+     *            name of the scratchpad
+     * @param model
+     *            model
+     * @param response
+     *            response
      * @return dispatch target
      */
     @RequestMapping(value = "/" + IConstantsRequest.URL_DOWNLOAD + "/{" + IConstants.PATH_PARAM_SCRATCHPAD_NAME + "}")
     public String doDownload(@PathVariable(IConstants.PATH_PARAM_SCRATCHPAD_NAME) final String name, final Model model,
-            final HttpServletResponse response) {
+	    final HttpServletResponse response) {
 
-        final String methodname = "doDownload(): ";
-        logger.log(Level.INFO, methodname + "name = " + name);
+	final String methodname = "doDownload(): ";
+	logger.log(Level.INFO, methodname + "name = " + name);
 
-        model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
+	model.addAttribute(IConstantsRequest.REQUEST_ATTR_NAME, name);
 
-        final ScratchPad scratchpad = service.getScratchPad(name);
-        final String filename = scratchpad.getName();
-        response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".txt\"");
+	final ScratchPad scratchpad = service.getScratchPad(name);
+	final String filename = scratchpad.getName();
+	response.setHeader("Content-Disposition", "attachment; filename=\"" + filename + ".txt\"");
 
-        final String text = scratchpad.getData();
-        model.addAttribute(IConstantsRequest.REQUEST_ATTR_TEXT, text);
+	final String text = scratchpad.getData();
+	model.addAttribute(IConstantsRequest.REQUEST_ATTR_TEXT, text);
 
-        logger.log(Level.INFO, methodname + "name = " + name + " text = " + text);
+	logger.log(Level.INFO, methodname + "name = " + name + " text = " + text);
 
-        final String result = IConstantsRequest.MVC_TARGET_DOWNLOAD;
-        return result;
+	final String result = IConstantsRequest.MVC_TARGET_DOWNLOAD;
+	return result;
     }
 
 }

@@ -27,6 +27,7 @@ import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import com.github.phvogt.pscratchpad.server.TestUtils;
 import com.github.phvogt.pscratchpad.server.dao.ScratchPadService;
+import com.github.phvogt.pscratchpad.server.dao.ScratchpadModifiedException;
 import com.github.phvogt.pscratchpad.server.dao.entities.ScratchPad;
 import com.google.appengine.tools.development.testing.LocalDatastoreServiceTestConfig;
 import com.google.appengine.tools.development.testing.LocalServiceTestHelper;
@@ -105,8 +106,8 @@ public class MVCControllerWebTest {
 	logger.info("start");
 
 	mockMvc.perform(MockMvcRequestBuilders.get("/")).andDo(MockMvcResultHandlers.print())
-	.andExpect(MockMvcResultMatchers.status().isFound())
-	.andExpect(MockMvcResultMatchers.redirectedUrl("/load/default"));
+		.andExpect(MockMvcResultMatchers.status().isFound())
+		.andExpect(MockMvcResultMatchers.redirectedUrl("/load/default"));
 
 	logger.info("end");
     }
@@ -131,15 +132,15 @@ public class MVCControllerWebTest {
 	Mockito.when(service.getScratchPad(testName)).thenReturn(returnData);
 
 	mockMvc.perform(MockMvcRequestBuilders.get("/" + IConstantsRequest.URL_LOAD + "/" + testName))
-	.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
-	.andExpect(MockMvcResultMatchers.view().name("index"))
-	.andExpect(MockMvcResultMatchers.forwardedUrl("index"))
-	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME,
-		Matchers.is(testName)))
-	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT,
-		Matchers.is(testData)))
-	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP,
-		Matchers.is(testTime.getTime())));
+		.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(MockMvcResultMatchers.view().name("index"))
+		.andExpect(MockMvcResultMatchers.forwardedUrl("index"))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME,
+			Matchers.is(testName)))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT,
+			Matchers.is(testData)))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP,
+			Matchers.is(testTime.getTime())));
 
     }
 
@@ -160,22 +161,22 @@ public class MVCControllerWebTest {
 
 	final ScratchPad returnData = TestUtils.createTestData(testName, testData, testTime);
 
-	Mockito.when(service.saveScratchPad(testName, testData)).thenReturn(returnData);
+	Mockito.when(service.saveScratchPad(testName, testTime, testData)).thenReturn(returnData);
 
 	mockMvc.perform(MockMvcRequestBuilders.post("/" + IConstantsRequest.URL_SAVE + "/" + testName)
-		.param(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD, testData))
-	.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
-	.andExpect(MockMvcResultMatchers.view().name("index"))
-	.andExpect(MockMvcResultMatchers.forwardedUrl("index"))
-	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME,
-		Matchers.is(testName)))
-	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT,
-		Matchers.is(testData)))
-	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP,
-		Matchers.is(testTime.getTime())))
-	.andExpect(MockMvcResultMatchers.model().attribute(
-		IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE, Matchers.is("changed.saved")));
-
+		.param(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD, testData)
+		.param(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_LASTCHANGE, "" + testTime.getTime()))
+		.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(MockMvcResultMatchers.view().name("index"))
+		.andExpect(MockMvcResultMatchers.forwardedUrl("index"))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME,
+			Matchers.is(testName)))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT,
+			Matchers.is(testData)))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP,
+			Matchers.is(testTime.getTime())))
+		.andExpect(MockMvcResultMatchers.model().attribute(
+			IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE, Matchers.is("changed.saved")));
     }
 
     /**
@@ -195,10 +196,73 @@ public class MVCControllerWebTest {
 
 	final ScratchPad returnData = TestUtils.createTestData(testName, testData, testTime);
 
-	Mockito.when(service.saveScratchPad(testName, testData)).thenReturn(returnData);
+	Mockito.when(service.saveScratchPad(testName, testTime, testData)).thenReturn(returnData);
 
 	mockMvc.perform(MockMvcRequestBuilders.post("/" + IConstantsRequest.URL_SAVE + "/" + testName))
-	.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest());
+		.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest());
+
+    }
+
+    /**
+     * Tests
+     * {@link com.github.phvogt.pscratchpad.server.web.MVCControllerWeb#doSave(String, String, org.springframework.ui.Model)}
+     * .
+     * 
+     * @throws Exception
+     *             if an assertion fails
+     */
+    @Test
+    public void testDoSaveLastchange() throws Exception {
+
+	final String testName = "default";
+	final String testData = "testData";
+	final Date testTime = new Date();
+
+	final ScratchPad returnData = TestUtils.createTestData(testName, testData, testTime);
+
+	Mockito.when(service.saveScratchPad(testName, testTime, testData)).thenReturn(returnData);
+
+	mockMvc.perform(MockMvcRequestBuilders.post("/" + IConstantsRequest.URL_SAVE + "/" + testName)
+		.param(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD, testData)
+		.param(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_LASTCHANGE, "asdf"))
+		.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isBadRequest());
+    }
+
+    /**
+     * Tests
+     * {@link com.github.phvogt.pscratchpad.server.web.MVCControllerWeb#doSave(String, String, org.springframework.ui.Model)}
+     * .
+     * 
+     * @throws Exception
+     *             if an assertion fails
+     */
+    @Test
+    public void testDoSaveModified() throws Exception {
+
+	final String testName = "default";
+	final String testData = "testData";
+	final Date testTime = new Date();
+
+	final Date testTime2 = new Date(testTime.getTime() - 1000);
+	final String testData2 = "testData\ntestData2";
+
+	Mockito.when(service.saveScratchPad(testName, testTime2, testData2))
+		.thenThrow(new ScratchpadModifiedException("modified", testTime, testData));
+
+	mockMvc.perform(MockMvcRequestBuilders.post("/" + IConstantsRequest.URL_SAVE + "/" + testName)
+		.param(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_SCRATCHPAD, testData2)
+		.param(IConstantsRequest.REQUEST_PARAM_EDITOR_FORM_LASTCHANGE, "" + testTime2.getTime()))
+		.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(MockMvcResultMatchers.view().name("index"))
+		.andExpect(MockMvcResultMatchers.forwardedUrl("index"))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME,
+			Matchers.is(testName)))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_TEXT,
+			Matchers.is(testData)))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_EDITOR_FILE_TIMESTAMP,
+			Matchers.is(testTime.getTime())))
+		.andExpect(MockMvcResultMatchers.model().attribute(
+			IConstantsRequest.REQUEST_ATTR_EDITOR_CHANGED_MESSAGE, Matchers.is("changed.merged")));
 
     }
 
@@ -222,15 +286,15 @@ public class MVCControllerWebTest {
 	Mockito.when(service.getScratchPad(testName)).thenReturn(returnData);
 
 	mockMvc.perform(MockMvcRequestBuilders.get("/" + IConstantsRequest.URL_DOWNLOAD + "/" + testName))
-	.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
-	.andExpect(MockMvcResultMatchers.view().name("download"))
-	.andExpect(MockMvcResultMatchers.forwardedUrl("download"))
-	.andExpect(MockMvcResultMatchers.header().string("Content-Disposition",
-		"attachment; filename=\"" + testName + ".txt\""))
-	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME,
-		Matchers.is(testName)))
-	.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_TEXT,
-		Matchers.is(testData)));
+		.andDo(MockMvcResultHandlers.print()).andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(MockMvcResultMatchers.view().name("download"))
+		.andExpect(MockMvcResultMatchers.forwardedUrl("download"))
+		.andExpect(MockMvcResultMatchers.header().string("Content-Disposition",
+			"attachment; filename=\"" + testName + ".txt\""))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_NAME,
+			Matchers.is(testName)))
+		.andExpect(MockMvcResultMatchers.model().attribute(IConstantsRequest.REQUEST_ATTR_TEXT,
+			Matchers.is(testData)));
 
     }
 
