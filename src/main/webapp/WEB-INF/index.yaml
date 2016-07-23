@@ -1,0 +1,7 @@
+indexes:
+
+- kind: ScratchPad
+  properties:
+  - name: name
+  - name: lastChange
+    direction: desc

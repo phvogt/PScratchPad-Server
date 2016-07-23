@@ -18,7 +18,7 @@
   <properties>
     <appengine.app.version>1</appengine.app.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <appengine.target.version>1.9.38</appengine.target.version>
+    <appengine.target.version>1.9.40</appengine.target.version>
 
     <datanucleus.appengine>2.1.2</datanucleus.appengine>
     <datanucleus.jpa.version>3.1.3</datanucleus.jpa.version>
